@@ -209,6 +209,7 @@ internal class CalculatorInputManager : INotifyPropertyChanged
         {
             infix.Add(c.ToString());
             CurrentInputLong += c;
+            _currentPendingBracket++;
             _currentState = CalculatorState.LeftBracket;
         }
         else if (c == OP_NEG)
@@ -383,7 +384,7 @@ internal class CalculatorInputManager : INotifyPropertyChanged
     {
         if (CurrentInputLong.Length > 0)
         {
-            CurrentInputLong.Remove(CurrentInputLong.Length - 1, 1);
+            CurrentInputLong = CurrentInputLong.Remove(CurrentInputLong.Length - 1, 1);
         }
 
 

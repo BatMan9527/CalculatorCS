@@ -31,7 +31,7 @@ namespace CalculatorCS.Calculator
         {
             if (num2 == 0)
             {
-                throw new DivideByZeroException();
+                throw new DivideByZeroException("除0错误！");
             }
             return num1 / num2;
         }
@@ -46,16 +46,14 @@ namespace CalculatorCS.Calculator
             return num1 - num2;
         }
 
-        private List<string> ToPostfix(List<string> infix)
+        private IEnumerable<string> ToPostfix(IEnumerable<string> infix)
         {
-            var output = new List<string>();
             var stack = new Stack<char>();
-
             foreach (var token in infix)
             {
                 if (IsNumber(token)) // 如果是数字，直接输出  
                 {
-                    output.Add(token);
+                    yield return token;
                 }
                 else if (token[0] == CalculatorInputManager.OP_LEFT_BRACKET) // 如果是左括号，压入栈  
                 {
@@ -65,7 +63,7 @@ namespace CalculatorCS.Calculator
                 {
                     while (stack.Count > 0 && stack.Peek() != CalculatorInputManager.OP_LEFT_BRACKET)
                     {
-                        output.Add(stack.Pop().ToString());
+                        yield return stack.Pop().ToString();
                     }
                     stack.Pop(); // 弹出左括号  
                 }
@@ -73,7 +71,7 @@ namespace CalculatorCS.Calculator
                 {
                     while (stack.Count > 0 && GetPrecedence(token[0]) <= GetPrecedence(stack.Peek()))
                     {
-                        output.Add(stack.Pop().ToString());
+                        yield return stack.Pop().ToString();
                     }
                     stack.Push(token[0]);
                 }
@@ -82,20 +80,14 @@ namespace CalculatorCS.Calculator
             // 弹出栈中剩余的运算符  
             while (stack.Count > 0)
             {
-                output.Add(stack.Pop().ToString());
+                yield return stack.Pop().ToString();
             }
-
-            return output;
         }
 
-
-        public override double Calculate(List<string> infix)
+        public override double Calculate(IEnumerable<string> infix)
         {
-            List<string> postfix = ToPostfix(infix);
-
             var stack = new Stack<double>();
-
-            foreach (var token in postfix)
+            foreach (var token in ToPostfix(infix))
             {
                 if (IsNumber(token)) // 如果是数字，压入栈  
                 {
@@ -114,13 +106,13 @@ namespace CalculatorCS.Calculator
                     switch (token[0])
                     {
                         case CalculatorInputManager.OP_ADD:
-                            stack.Push(op1 + op2); break;
+                            stack.Push(Add(op1, op2)); break;
                         case CalculatorInputManager.OP_SUB:
-                            stack.Push(op1 - op2); break;
+                            stack.Push(Subtract(op1, op2)); break;
                         case CalculatorInputManager.OP_MUL:
-                            stack.Push(op1 * op2); break;
+                            stack.Push(Multiply(op1, op2)); break;
                         case CalculatorInputManager.OP_DIV:
-                            stack.Push(op1 / op2); break;
+                            stack.Push(Divide(op1, op2)); break;
                         default:
                             throw new NotSupportedException("不支持的运算符: " + token[0]);
                     }

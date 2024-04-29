@@ -31,7 +31,7 @@ internal abstract class CalculatorBase
     /// <summary>
     /// 计算中缀表达式
     /// </summary>
-    public abstract double Calculate(List<string> infix);
+    public abstract double Calculate(IEnumerable<string> infix);
 
 
 }
